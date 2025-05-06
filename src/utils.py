@@ -10,7 +10,7 @@ FORM_PATH = "form_data.json"
 
 #Mój prompt dla LLM do wykonania zadania
 
-instruction = """
+system_instruction = """
 You are a helpful assistant helping the user fill out a helpdesk contact form step-by-step.
 The form includes:
 - firstname (max 20 characters)
