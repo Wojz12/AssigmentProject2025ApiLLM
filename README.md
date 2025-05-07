@@ -90,12 +90,6 @@ docker run --rm -it --env-file .env helpdesk-chatbot
 
 ---
 
-## Notes
-
-* This app runs in the console, no GUI is used (to ensure compatibility inside Docker).
-* Please do not include any sensitive keys or Freeport Metrics information in the repo.
-* No commercial libraries or tools were used.
-
 ## License
 
 This project is for recruitment evaluation purposes only.
