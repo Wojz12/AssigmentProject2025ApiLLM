@@ -1,85 +1,101 @@
-# AssigmentProject2025ApiLLM Wojciech Soczyński
+# Helpdesk Chatbot Assistant (Summer Internship Assignment 2025)
 
-# 2025 - Summer - Internship Recruitment - Home Assignment
+## Overview
 
-### **Introduction**
+This is a simple console-based application that leverages generative AI (Google Gemini API) to assist users in filling out a helpdesk form. The assistant conducts a natural-language conversation with the user, gathers the required information, and stores it in a JSON file. The entire project is containerized using Docker for ease of deployment.
 
-Treat this as a simple coding challenge for yourself, that you can address at your own pace,
-with the mind space you need. This will help us understand your level of coding skills a bit
-more, and get to know your thinking process about approaching the problem to solve and
-general approach around organizing your own work and your code.
-Good luck and have fun with it! :)
+## Features
 
-### **The Assignment**
+* Console chat interface
+* Interactive helpdesk form filling
+* Uses Google Gemini API (free tier)
+* Form fields validated and stored in `form_data.json`
+* Dockerized for easy setup and testing
 
-#### Task
+### Form Fields
 
-Develop an application that uses generative AI to assist users in filling out a helpdesk form.
-You can use a free version of Google’s Gemini LLM to achieve the goal. See instructions
-here: https://aistudio.google.com/apikey
+* `Firstname`: string (max 20 characters)
+* `Lastname`: string (max 20 characters)
+* `Email`: string (valid email format)
+* `Reason of contact`: string (max 100 characters)
+* `Urgency`: integer (1–10)
 
-Users should be able to have a chat conversation with the LLM. The conversation should
-happen through a dedicated UI or console - the choice is yours!
+## How to Use
 
-The assistant should have a brief yet meaningful context passed through a prompt and
-should interrogate the user to support the form filling process. The assistant should fill the
-form and store the json with following values:
+At any point in the conversation:
 
-Firstname: (string, max 20 characters)
-Lastname: (string, max 20 characters)
-Email: (string, validate format)
-Reason of contact: (string, max 100 characters)
-Urgency: (integer, range 1-10)
+* Type `show form` to preview the current form
+* Type `exit` to end the chat
 
-Users should be able to see the current state of form at any time.
+---
 
-The application should be containerized and easy to run using Docker. Provide .env file for
-api key. The source code should be hosted on GitHub, along the commit history, as well as
-instructions for building and running the container in a README file.
+## How to Clone and Run the Project
 
-#### **Instructions**
+### 1. Clone the repository
 
-Read these carefully before you start any coding(!):
+```bash
+git clone https://github.com/Wojz12/AssigmentProject2025ApiLLM.git
+cd AssigmentProject2025ApiLLM
+```
 
-1.  Timeline (Deadline)
-    * 72 hours since the assignment being sent out to you (we will check the
-timestamp of your email back to us with the one we sent to you)
-2.  Acceptable stacks / frameworks / tools:
-* .Net + (C#), Java, Python, Typescript/Javascript, Kotlin, Swift
-* We will try to run it on / deploy to:
-  * Docker Containers running on Windows or Mac OS X
-* No commercial/paid solutions (no trial versions either) / frameworks allowed
-3. What and how to submit the task to us
-* Email us the link to your public git repository
-* Add instructions for us:
-  * How to pull the code / clone or fork your project repository
-  * How to compile / assemble the code
-  * How to run/deploy the solution
-  * How to use it (if any user input required) 
-* Do not send any executables(!) / any published packages(!)
-* *NOTE: do not put Freeport Metrics specific information in the repo (repo
-name / project name / readme ) - so it will NOT be easy to search&find by
-your competition :)
+### 2. Set up environment variables
 
+Create a `.env` file in the root directory with the following content:
 
-#### **Evaluation Criteria**
+```
+GEMINI_API_KEY=your_google_gemini_api_key_here
+```
 
-We will use the below set of criteria to evaluate your work - please consider them when
-working on the solution of the problem stated before. Total potential points to get: 100 (each
-criteria max score details below).
-* Was the task completed? (points to score: 0-30)
-  * The solution does what it is supposed to do - the final result is what was
-expected 
-  * No bugs come up during our testing
-* Code/project structure / modularity & readability (DRY, single responsibility, IoC,
-separate applications for front-end and back-end, Design patterns usage...) (do not
-put everything to one “void main()” ;) ) (points to score: 0-20)
-* How efficient is the solution? (points to score: 0-10)
- * Is the algorithm efficient / inefficient
-* Configuration vs. hardcoding settings balance (points to score: 0-10)
-* Git history (we will review your commit history and repository usage, how did you use
-branches for instance, what was your step-by-step process ;)) (and if there will be
-any commits after your email sent back to us(!)) (points to score: 0-15)
-* What is the quality of Instructions on how to run the solution for us - if we won’t
-understand how to run / deploy your solution we will not know if it works! (points to
-score: 0-15)
+You can get your free Gemini API key here: [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+
+### 3. Build and run the Docker container
+
+Make sure Docker is installed and running on your system.
+
+```bash
+docker build -t helpdesk-chatbot .
+docker run --rm -it --env-file .env helpdesk-chatbot
+```
+
+> 🐳 The application runs in interactive mode inside the container.
+
+### 4. How it works
+
+* The app starts a console-based conversation with the assistant.
+* The assistant gathers required form inputs one by one.
+* You can type `show form` anytime to check progress.
+* Once done, the form is saved to `form_data.json`.
+
+---
+
+## Project Structure
+
+```bash
+.
+├── Dockerfile
+├── .env (not committed)
+├── requirements.txt
+├── form_data.json (output)
+└── src
+    ├── main.py           # Entry point
+    ├── ui.py             # Console UI logic
+    ├── utils.py          # Helper functions (init, update, load, start_chat)
+```
+
+## Requirements
+
+* Python 3.11+
+* Google Gemini API key (free tier)
+* Docker
+
+---
+
+## Notes
+
+* This app runs in the console, no GUI is used (to ensure compatibility inside Docker).
+* Please do not include any sensitive keys or Freeport Metrics information in the repo.
+* No commercial libraries or tools were used.
+
+## License
+
+This project is for recruitment evaluation purposes only.
