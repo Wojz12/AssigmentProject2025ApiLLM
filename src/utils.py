@@ -1,16 +1,19 @@
+# utils.py
 import os
 import json
 import re
-import google.generativeai as genai
 from dotenv import load_dotenv
+import google.generativeai as genai
 
+# Load environment
 load_dotenv()
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
+# Path to form data
 FORM_PATH = "form_data.json"
 
-#Mój prompt dla LLM do wykonania zadania
-
-instruction = """
+# System prompt for LLM
+SYSTEM_INSTRUCTION = """
 You are a helpful assistant helping the user fill out a helpdesk contact form step-by-step.
 The form includes:
 - firstname (max 20 characters)
@@ -20,85 +23,75 @@ The form includes:
 - urgency (integer from 1 to 10)
 
 Instructions:
-- Do NOT show or return any JSON to the user.
-- Respond naturally and conversationally.
+- Respond conversationally.
 - Ask only for missing or unclear fields.
 - Internally track the form progress.
-- When user types "show form", return the current form as a JSON object.
-
-Initial form:
-{
-  "firstname": null,
-  "lastname": null,
-  "email": null,
-  "reason": null,
-  "urgency": null
-}
+- When user types "show form", return the current form as JSON.
 """
 
 def init_form():
-    form = {
-        "firstname": None,
-        "lastname": None,
-        "email": None,
-        "reason": None,
-        "urgency": None
-    }
+    """
+    Initialize the JSON file with empty form.
+    """
+    form = {"firstname": None, "lastname": None, "email": None, "reason": None, "urgency": None}
     with open(FORM_PATH, "w") as f:
         json.dump(form, f, indent=2)
 
+
 def load_form():
+    """
+    Load current form data from JSON.
+    """
     with open(FORM_PATH, "r") as f:
         return json.load(f)
 
+
 def save_form(data):
+    """
+    Save form data to JSON.
+    """
     with open(FORM_PATH, "w") as f:
         json.dump(data, f, indent=2)
 
-def configure_genai():
-    genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def generate_chat():
+def configure_genai():
+    """
+    Configure the Gemini API key.
+    """
+    genai.configure(api_key=API_KEY)
+
+
+def start_chat():
+    """
+    Start a chat session with the LLM.
+    """
     configure_genai()
     model = genai.GenerativeModel(
         model_name="models/gemini-1.5-flash-latest",
-        system_instruction=system_instruction,
+        system_instruction=SYSTEM_INSTRUCTION,
     )
     return model.start_chat(history=[])
 
-def update_form_from_response(response_text):
-    try:
-        json_match = re.search(r'{.*}', response_text, re.DOTALL)
-        if not json_match:
-            print("⚠️ Could not find JSON in model response.")
-            return
 
-        extracted_json = json.loads(json_match.group(0))
-        form_data = load_form()
-
-        for key in form_data:
-            if key in extracted_json and extracted_json[key] is not None:
-                form_data[key] = extracted_json[key]
-
-        save_form(form_data)
-
-    except Exception as e:
-        print(f"❌ Could not update form: {e}")
-
-def extract_current_form(chat):
+def extract_form_from_response(text):
     """
-    Internally asks the model for the current form as JSON (without user seeing it),
-    so we can update the file.
+    Extract JSON snippet from model response text.
     """
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if not match:
+        return None
     try:
-        internal_response = chat.send_message("show form")
-        json_match = re.search(r'{.*}', internal_response.text, re.DOTALL)
-        if not json_match:
-            print("⚠️ Could not extract form JSON.")
-            return
+        return json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return None
 
-        extracted_json = json.loads(json_match.group(0))
-        save_form(extracted_json)
 
-    except Exception as e:
-        print(f"❌ Failed to extract form: {e}")
+def update_form(chat):
+    """
+    Ask the model internally to dump the current form and save it.
+    """
+    resp = chat.send_message("show form")
+    new_data = extract_form_from_response(resp.text)
+    if new_data:
+        save_form(new_data)
+
